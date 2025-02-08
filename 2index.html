@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Creator Suite</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .tab-active {
+            border-bottom: 2px solid #3B82F6;
+        }
+        .tool-active {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3B82F6;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-8">
+                <h1 class="text-xl font-bold">AI Image Creator</h1>
+                <div class="space-x-4">
+                    <button class="nav-btn text-gray-300 hover:text-white">Explore</button>
+                    <button class="nav-btn text-gray-300 hover:text-white">Create</button>
+                    <button class="nav-btn text-gray-300 hover:text-white">Edit</button>
+                    <button class="nav-btn text-gray-300 hover:text-white">My creations</button>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm bg-yellow-600 px-2 py-1 rounded">37% off</span>
+                <button class="bg-blue-600 px-4 py-2 rounded-lg">Upgrade Pro</button>
+                <div class="relative">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Tools -->
+    <div class="flex">
+        <div class="w-16 bg-gray-800 min-h-screen flex flex-col items-center py-4 space-y-6">
+            <button class="tool-btn tool-active p-2 w-full flex justify-center" data-tool="images">
+                <i class="fas fa-image"></i>
+            </button>
+            <button class="tool-btn p-2 w-full flex justify-center" data-tool="video">
+                <i class="fas fa-video"></i>
+            </button>
+            <button class="tool-btn p-2 w-full flex justify-center" data-tool="reimagine">
+                <i class="fas fa-magic"></i>
+            </button>
+            <button class="tool-btn p-2 w-full flex justify-center" data-tool="sketch">
+                <i class="fas fa-pencil-alt"></i>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4">
+            <div class="container mx-auto">
+                <!-- Tabs -->
+                <div class="flex space-x-6 mb-6">
+                    <button class="tab-btn tab-active px-4 py-2 flex items-center space-x-2" data-tab="generate">
+                        <span>Generate</span>
+                    </button>
+                    <button class="tab-btn px-4 py-2 flex items-center space-x-2" data-tab="history">
+                        <i class="fas fa-history"></i>
+                        <span>History</span>
+                    </button>
+                    <button class="tab-btn px-4 py-2 flex items-center space-x-2" data-tab="inspiration">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Inspiration</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Left Panel -->
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <div class="space-y-4">
+                            <!-- AI Prompt -->
+                            <div class="relative">
+                                <div class="flex items-center mb-2">
+                                    <div class="flex-1">
+                                        <label class="inline-flex items-center">
+                                            <input type="checkbox" class="form-checkbox" checked>
+                                            <span class="ml-2">AI-prompt</span>
+                                        </label>
+                                    </div>
+                                    <button class="text-gray-400 hover:text-white">
+                                        <i class="fas fa-cube"></i>
+                                    </button>
+                                </div>
+                                <textarea 
+                                    id="prompt-input"
+                                    class="w-full bg-gray-700 p-3 rounded-lg resize-none"
+                                    rows="4"
+                                    placeholder="Describe your image..."
+                                ></textarea>
+                                <input type="file" id="image-upload" class="hidden" accept="image/*">
+                                <button id="upload-btn" class="absolute right-2 top-10 text-blue-500">
+                                    <i class="fas fa-upload"></i>
+                                </button>
+                            </div>
+
+                            <!-- Mode Selection -->
+                            <div class="bg-gray-700 p-3 rounded-lg">
+                                <h3 class="font-semibold mb-2">Mode</h3>
+                                <select class="w-full bg-gray-600 p-2 rounded">
+                                    <option>Flux 1.0 Fast</option>
+                                    <option>Flux 1.0 Quality</option>
+                                    <option>Classic</option>
+                                </select>
+                            </div>
+
+                            <!-- Style -->
+                            <div class="bg-gray-700 p-3 rounded-lg">
+                                <h3 class="font-semibold mb-2">Style</h3>
+                                <div id="style-buttons" class="flex flex-wrap gap-2">
+                                    <button class="style-btn px-3 py-1 bg-gray-600 rounded-full text-sm" data-style="realistic">Realistic</button>
+                                    <button class="style-btn px-3 py-1 bg-gray-600 rounded-full text-sm" data-style="artistic">Artistic</button>
+                                    <button class="style-btn px-3 py-1 bg-gray-600 rounded-full text-sm" data-style="3d">3D</button>
+                                    <button class="style-btn px-3 py-1 bg-gray-600 rounded-full text-sm" data-style="cartoon">Cartoon</button>
+                                    <button class="style-btn px-3 py-1 bg-gray-600 rounded-full text-sm" data-style="anime">Anime</button>
+                                    <button class="style-btn px-3 py-1 bg-gray-600 rounded-full text-sm" data-style="digital-art">Digital Art</button>
+                                </div>
+                            </div>
+
+                            <!-- Effects -->
+                            <div class="bg-gray-700 p-3 rounded-lg">
+                                <h3 class="font-semibold mb-2">Effects</h3>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <span>Lighting</span>
+                                        <input type="range" min="0" max="100" value="50" class="w-32">
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span>Contrast</span>
+                                        <input type="range" min="0" max="100" value="50" class="w-32">
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span>Saturation</span>
+                                        <input type="range" min="0" max="100" value="50" class="w-32">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Character -->
+                            <div class="bg-gray-700 p-3 rounded-lg">
+                                <h3 class="font-semibold mb-2">Character</h3>
+                                <button class="w-full bg-gray-600 p-2 rounded text-left">
+                                    <i class="fas fa-plus mr-2"></i> Add Character
+                                </button>
+                            </div>
+
+                            <!-- Aspect Ratio -->
+                            <div class="bg-gray-700 p-3 rounded-lg">
+                                <h3 class="font-semibold mb-2">Aspect Ratio</h3>
+                                <div class="flex items-center space-x-2">
+                                    <button class="p-1">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span>4</span>
+                                    <button class="p-1">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div id="ratio-buttons" class="flex gap-2 mt-2">
+                                    <button class="ratio-btn px-3 py-1 bg-gray-600 rounded-lg text-sm" data-ratio="1:1">1:1</button>
+                                    <button class="ratio-btn px-3 py-1 bg-gray-600 rounded-lg text-sm" data-ratio="16:9">16:9</button>
+                                    <button class="ratio-btn px-3 py-1 bg-gray-600 rounded-lg text-sm" data-ratio="4:3">4:3</button>
+                                    <button class="ratio-btn px-3 py-1 bg-gray-600 rounded-lg text-sm" data-ratio="9:16">9:16</button>
+                                </div>
+                            </div>
+
+                            <button id="generate-btn" class="w-full bg-blue-600 py-3 rounded-lg font-semibold">
+                                Generate Image
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Panel -->
+                    <div class="md:col-span-3 space-y-4">
+                        <!-- Feature Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-gray-800 p-4 rounded-lg">
+                                <h3 class="font-semibold mb-2">Image Reference</h3>
+                                <p class="text-sm text-gray-400">Upload an image to transfer its style</p>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg">
+                                <h3 class="font-semibold mb-2">Create Style</h3>
+                                <p class="text-sm text-gray-400">Choose images to create a consistent style</p>
+                            </div>
+                            <div class="bg-gray-800 p-4 rounded-lg">
+                                <h3 class="font-semibold mb-2">Create Character</h3>
+                                <p class="text-sm text-gray-400">Design and customize your character</p>
+                            </div>
+                        </div>
+
+                        <!-- Categories -->
+                        <div class="flex gap-4 mb-4 overflow-x-auto">
+                            <button class="category-btn px-4 py-2 bg-gray-800 rounded-lg whitespace-nowrap" data-category="all">For You</button>
+                            <button class="category-btn px-4 py-2 bg-gray-800 rounded-lg whitespace-nowrap" data-category="photography">Photography</button>
+                            <button class="category-btn px-4 py-2 bg-gray-800 rounded-lg whitespace-nowrap" data-category="illustration">Illustration</button>
+                            <button class="category-btn px-4 py-2 bg-gray-800 rounded-lg whitespace-nowrap" data-category="3d">3D</button>
+                            <button class="category-btn px-4 py-2 bg-gray-800 rounded-lg whitespace-nowrap" data-category="characters">Characters</button>
+                        </div>
+
+                        <!-- Images Grid -->
+                        <div id="images-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Images will be dynamically added here -->
+                        </div>
+
+                        <!-- Loading Spinner -->
+                        <div id="loading-spinner" class="hidden flex justify-center items-center py-8">
+                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Templates -->
+    <div id="style-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-gray-800 p-6 rounded-lg w-96">
+            <h2 class="text-xl font-bold mb-4">Create Style</h2>
+            <div class="grid grid-cols-3 gap-4 mb-4">
+                <div class="aspect-square bg-gray-700 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <!-- Add more placeholder squares -->
+            </div>
+            <button class="w-full bg-blue-600 py-2 rounded-lg">Create Style</button>
+        </div>
+    </div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Configuration
+    const API_KEY = 'YOUR_FREEPIK_API_KEY';
+    const API_ENDPOINT = 'https://api.freepik.com/v1/ai/generate';
+
+    // State management
+    let currentState = {
+        style: 'realistic',
+        aspectRatio: '1:1',
+        category: 'all',
+        uploadedImage: null,
+        mode: 'flux-fast',
+        effects: {
+            lighting: 50,
+            contrast: 50,
+            saturation: 50
+        },
+        character: null,
+        history: [],
+        activeTab: 'generate'
+    };
+
+    // Elements
+    const generateBtn = document.getElementById('generate-btn');
+    const promptInput = document.getElementById('prompt-input');
+    const imagesGrid = document.getElementById('images-grid');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const uploadBtn = document.getElementById('upload-btn');
+    const imageUpload = document.getElementById('image-upload');
+    const styleModal = document.getElementById('style-modal');
+
+    // Tab Management
+    function switchTab(tabName) {
+        currentState.activeTab = tabName;
+        document.querySelectorAll('.tab-btn').forEach(tab => {
+            tab.classList.toggle('tab-active', tab.dataset.tab === tabName);
+        });
+
+        // Update content based on active tab
+        switch(tabName) {
+            case 'history':
+                displayHistory();
+                break;
+            case 'inspiration':
+                loadInspirationContent();
+                break;
+            case 'generate':
+                resetGenerateView();
+                break;
+        }
+    }
+
+    // History Management
+    function addToHistory(imageData) {
+        currentState.history.unshift({
+            id: Date.now(),
+            imageUrl: imageData.url,
+            prompt: imageData.prompt,
+            settings: { ...currentState }
+        });
+        saveHistory();
+    }
+
+    function displayHistory() {
+        imagesGrid.innerHTML = '';
+        currentState.history.forEach(item => {
+            const historyItem = createHistoryItem(item);
+            imagesGrid.appendChild(historyItem);
+        });
+    }
+
+    function createHistoryItem(item) {
+        const div = document.createElement('div');
+        div.className = 'bg-gray-800 rounded-lg overflow-hidden';
+        div.innerHTML = `
+            <img src="${item.imageUrl}" alt="Generated Image" class="w-full h-48 object-cover">
+            <div class="p-3">
+                <p class="text-sm text-gray-400 mb-2">${item.prompt}</p>
+                <div class="flex justify-between">
+                    <button class="text-blue-500 hover:text-blue-400 regenerate-btn" data-id="${item.id}">
+                        <i class="fas fa-redo"></i> Regenerate
+                    </button>
+                    <button class="text-blue-500 hover:text-blue-400 download-btn">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        return div;
+    }
+
+    // Effects Management
+    function initializeEffectsControls() {
+        const sliders = document.querySelectorAll('input[type="range"]');
+        sliders.forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const effect = e.target.previousElementSibling.textContent.toLowerCase();
+                currentState.effects[effect] = parseInt(e.target.value);
+                applyEffects();
+            });
+        });
+    }
+
+    function applyEffects() {
+        const preview = document.querySelector('#preview-image');
+        if (preview) {
+            preview.style.filter = `
+                brightness(${currentState.effects.lighting}%)
+                contrast(${currentState.effects.contrast}%)
+                saturate(${currentState.effects.saturation}%)
+            `;
+        }
+    }
+
+    // Character Management
+    function initializeCharacterControls() {
+        const addCharacterBtn = document.querySelector('[data-tool="character"]');
+        addCharacterBtn.addEventListener('click', () => {
+            openCharacterModal();
+        });
+    }
+
+    function openCharacterModal() {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center';
+        modal.innerHTML = `
+            <div class="bg-gray-800 p-6 rounded-lg w-96">
+                <h2 class="text-xl font-bold mb-4">Create Character</h2>
+                <div class="space-y-4">
+                    <input type="text" placeholder="Character Name" class="w-full bg-gray-700 p-2 rounded">
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="bg-gray-700 p-2 rounded">Gender</button>
+                        <button class="bg-gray-700 p-2 rounded">Age</button>
+                        <button class="bg-gray-700 p-2 rounded">Style</button>
+                        <button class="bg-gray-700 p-2 rounded">Outfit</button>
+                    </div>
+                    <button class="w-full bg-blue-600 py-2 rounded-lg" id="create-character-btn">
+                        Create Character
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    // API Integration
+    async function generateImage(prompt) {
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    prompt,
+                    style: currentState.style,
+                    aspect_ratio: currentState.aspectRatio,
+                    reference_image: currentState.uploadedImage,
+                    mode: currentState.mode,
+                    effects: currentState.effects,
+                    character: currentState.character
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            addToHistory({
+                url: data.image_url,
+                prompt: prompt
+            });
+            return data.image_url;
+        } catch (error) {
+            console.error('Error generating image:', error);
+            throw error;
+        }
+    }
+
+    // Inspiration Content
+    function loadInspirationContent() {
+        imagesGrid.innerHTML = '';
+        // Add inspiration templates
+        const templates = [
+            { title: 'Portrait Photography', category: 'photography' },
+            { title: '3D Character', category: '3d' },
+            { title: 'Digital Landscape', category: 'illustration' }
+            // Add more templates
+        ];
+
+        templates.forEach(template => {
+            const templateCard = createTemplateCard(template);
+            imagesGrid.appendChild(templateCard);
+        });
+    }
+
+    function createTemplateCard(template) {
+        const div = document.createElement('div');
+        div.className = 'bg-gray-800 rounded-lg overflow-hidden';
+        div.innerHTML = `
+            <div class="p-4">
+                <h3 class="font-semibold mb-2">${template.title}</h3>
+                <p class="text-sm text-gray-400">Click to use this template</p>
+            </div>
+        `;
+        div.addEventListener('click', () => {
+            promptInput.value = `Create a ${template.title.toLowerCase()}`;
+            switchTab('generate');
+        });
+        return div;
+    }
+
+    // Initialize Events
+    function initializeEvents() {
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+        });
+
+        // Tool switching
+        document.querySelectorAll('.tool-btn').forEach(tool => {
+            tool.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(t => 
+                    t.classList.remove('tool-active'));
+                tool.classList.add('tool-active');
+            });
+        });
+
+        // Style selection
+        document.querySelectorAll('.style-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.style-btn').forEach(b => 
+                    b.classList.remove('bg-blue-600'));
+                btn.classList.add('bg-blue-600');
+                currentState.style = btn.dataset.style;
+            });
+        });
+
+        // Generate button
+        generateBtn.addEventListener('click', async () => {
+            const prompt = promptInput.value;
+            if (!prompt) {
+                alert('Please enter a description for your image');
+                return;
+            }
+
+            try {
+                generateBtn.disabled = true;
+                generateBtn.innerHTML = 'Generating...';
+                loadingSpinner.classList.remove('hidden');
+
+                const imageUrl = await generateImage(prompt);
+                addImageToGrid(imageUrl, currentState.category);
+
+            } catch (error) {
+                alert('Error generating image. Please try again.');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = 'Generate Image';
+                loadingSpinner.classList.add('hidden');
+                resetUploadState();
+            }
+        });
+
+        // Initialize other controls
+        initializeEffectsControls();
+        initializeCharacterControls();
+    }
+
+    // Utility Functions
+    function resetUploadState() {
+        if (currentState.uploadedImage) {
+            uploadBtn.innerHTML = '<i class="fas fa-upload"></i>';
+            currentState.uploadedImage = null;
+            imageUpload.value = '';
+        }
+    }
+
+    function resetGenerateView() {
+        promptInput.value = '';
+        resetUploadState();
+        currentState.effects = {
+            lighting: 50,
+            contrast: 50,
+            saturation: 50
+        };
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.value = 50;
+        });
+    }
+
+    // Initialize the application
+    initializeEvents();
+    switchTab('generate');
+});
+</script>
+
+            tools.forEach(tool => {
+                tool.addEventListener('click', () => {
+                    tools.forEach(t => t.classList.remove('tool-active'));
+                    tool.classList.add('tool-active');
+                    // Add tool switching logic here
+                });
+            });
+
+            // Effects sliders
+            const sliders = document.querySelectorAll('input[type="range"]');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', (e) => {
+                    // Add effect adjustment logic here
+                    console.log(`${e.target.previousElementSibling.textContent}: ${e.target.value}`);
+                });
